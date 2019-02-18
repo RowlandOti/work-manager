@@ -12,10 +12,10 @@ import com.raywenderlich.android.photouploader.ImageUtils
 import com.raywenderlich.android.photouploader.KEY_IMAGE_INDEX
 import com.raywenderlich.android.photouploader.KEY_IMAGE_URI
 
-private val LOG_TAG by lazy { SepiaFilterWorker::class.java.simpleName }
+private val LOG_TAG by lazy { SepiatoneFilterWorker::class.java.simpleName }
 
 
-class SepiaFilterWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params){
+class SepiatoneFilterWorker(ctx: Context, params: WorkerParameters) : Worker(ctx, params){
 
     override fun doWork(): Result = try {
         // Sleep for debugging purposes

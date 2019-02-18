@@ -16,6 +16,12 @@ const val KEY_IMAGE_INDEX = "IMAGE_INDEX"
 const val KEY_IMAGE_PATH_PREFIX = "IMAGE_PATH_"
 //const val KEY_IMAGE_PATH = "IMAGE_PATH"
 const val KEY_ZIP_PATH = "ZIP_PATH"
+const val DIRECTORY_OUTPUTS = "outputs"
+
+
+const val UNIQUE_WORK_NAME = "UNIQUE_WORK_NAME"
+const val IMAGE_MANIPULATION_WORK_NAME = "IMAGE_PROCESSING_WORK_TAG"
+const val WORK_TAG = "WORK_TAG"
 
 // Where to upload images
 //  const val SERVER_UPLOAD_PATH = "http://10.0.2.2:3000/files" //local server URL

@@ -28,11 +28,12 @@
  * THE SOFTWARE.
  */
 
-package com.raywenderlich.android.photouploader
+package com.raywenderlich.android.photouploader.ui
 
 import android.Manifest
 import android.app.Activity
 import android.arch.lifecycle.Observer
+import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.Uri
@@ -42,6 +43,8 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import androidx.work.*
+import androidx.work.R
+import com.raywenderlich.android.photouploader.*
 import com.raywenderlich.android.photouploader.workers.*
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.concurrent.TimeUnit
@@ -57,15 +60,13 @@ class MainActivity : AppCompatActivity() {
         private const val IMAGE_TYPE = "image/*"
         private const val IMAGE_CHOOSER_TITLE = "Select Picture"
 
-        private const val UNIQUE_WORK_NAME = "UNIQUE_WORK_NAME"
-        private const val WORK_TAG = "WORK_TAG"
-
         private val PERMISSIONS = arrayOf(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE
         )
     }
 
+    private lateinit var mViewModel: FilterViewModel
     private var permissionRequestCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,6 +80,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun initUi() {
         uploadGroup.visibility = View.GONE
+
+        mViewModel = ViewModelProviders.of(this).get(FilterViewModel::class.java)
 
         pickPhotosButton.setOnClickListener { showPhotoPicker() }
         cancelButton.setOnClickListener { WorkManager.getInstance().cancelUniqueWork(UNIQUE_WORK_NAME) }
@@ -128,7 +131,18 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (data != null && resultCode == Activity.RESULT_OK && requestCode == GALLERY_REQUEST_CODE) {
 
-            val applySepiaFilter = buildFilterRequests(data, SepiaFilterWorker::class.java)
+
+            val imageOperations = ImageOperations.Builder(mImageUri!!)
+                    .setApplyWaterColor(true)
+                    .setApplyGrayScale(true)
+                    .setApplyBlur(true)
+                    .setApplySave(true)
+                    .setApplyUpload(true)
+                    .build()
+
+            mViewModel.apply(imageOperations)
+
+            val applySepiaFilter = buildFilterRequests(data, SepiatoneFilterWorker::class.java)
 
             val applyBlurFilter = OneTimeWorkRequest.Builder(BlurFilterWorker::class.java)
                     .build()
@@ -205,5 +219,7 @@ class MainActivity : AppCompatActivity() {
 
                     uploadGroup.visibility = uploadVisibility
                 })
+
+        mViewModel.outputStatus.
     }
 }

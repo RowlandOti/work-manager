@@ -71,7 +71,6 @@ object ImageUtils {
     private const val SEPIA_TONE_GREEN = 65
     private const val SEPIA_TONE_BLUE = 20
 
-    private const val DIRECTORY_OUTPUTS = "outputs"
     private const val COMPRESS_BUFFER_CHUNK = 1024
 
     private val okHttpClient by lazy { OkHttpClient() }
@@ -171,7 +170,39 @@ object ImageUtils {
         }
     }
 
-    fun writeBitmapToFile(applicationContext: Context, bitmap: Bitmap): File {
+    /**
+     * Writes a given [Bitmap] to the [Context.getFilesDir] directory.
+     *
+     * @param applicationContext the application [Context].
+     * @param bitmap the [Bitmap] which needs to be written to the files directory.
+     * @return a [Uri] to the output [Bitmap].
+     */
+    @Throws(FileNotFoundException::class)
+    fun writeBitmapToFile(applicationContext: Context, bitmap: Bitmap): Uri {
+        // Bitmaps are being written to a temporary directory. This is so they can serve as inputs
+        // for workers downstream, via Worker chaining.
+        val name = String.format("filter-output-%s.png", UUID.randomUUID().toString())
+        val outputDir = File(applicationContext.filesDir, DIRECTORY_OUTPUTS)
+        if (!outputDir.exists()) {
+            outputDir.mkdirs()
+        }
+        val outputFile = File(outputDir, name)
+        var out: FileOutputStream? = null
+        try {
+            out = FileOutputStream(outputFile)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0 /* ignored for PNG */, out)
+        } finally {
+            if (out != null) {
+                try {
+                    out.close()
+                } catch (ignore: IOException) {
+                }
+            }
+        }
+        return Uri.fromFile(outputFile)
+    }
+
+    /*fun writeBitmapToFile(applicationContext: Context, bitmap: Bitmap): File {
         val randomId = UUID.randomUUID().toString()
         val name = "$randomId.png"
 
@@ -180,14 +211,14 @@ object ImageUtils {
 
         try {
             FileOutputStream(outputFile).use { outputStream ->
-                bitmap.compress(Bitmap.CompressFormat.PNG, 0 /* ignored for PNG */, outputStream)
+                bitmap.compress(Bitmap.CompressFormat.PNG, 0 *//* ignored for PNG *//*, outputStream)
             }
         } catch (e: FileNotFoundException) {
             e.printStackTrace()
         }
 
         return outputFile
-    }
+    }*/
 
     private fun getOutputDirectory(applicationContext: Context): File {
         return File(applicationContext.filesDir, DIRECTORY_OUTPUTS).apply {
